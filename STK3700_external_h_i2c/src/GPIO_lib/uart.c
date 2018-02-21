@@ -11,6 +11,7 @@
 #include "../RS232_cmd.h"
 #include "segmentlcd.h"
 
+/*******************************************************************************************/
 
 void GPIO_EN_UART(void) {
 
@@ -30,7 +31,7 @@ void GPIO_EN_UART(void) {
 	{
 		.enable       = usartDisable,   // Wait to enable the transmitter and receiver
 		.refFreq      = 0,              // Setting refFreq to 0 will invoke the CMU_ClockFreqGet() function and measure the HFPER clock
-		.baudrate     = 2800,          // Desired baud rate
+		.baudrate     = 57600,          // Desired baud rate
 		.oversampling = usartOVS16,     // Set oversampling value to x16
 		.databits     = usartDatabits8, // 8 data bits
 		.parity       = usartOddParity,  // No parity bits
@@ -55,7 +56,7 @@ void GPIO_EN_UART(void) {
 
 	USART_Enable(USART1, usartEnable);     // Enable transmitter and receiver
 }
-
+/*******************************************************************************************/
 //PD0 (UART1_RX)
 void USART1_RX_IRQHandler(void) {
 	GPIO_IntClear(1<<11);
@@ -69,3 +70,5 @@ void USART1_RX_IRQHandler(void) {
 		SegmentLCD_Write(receivedString);
 	}
 }
+
+/*******************************************************************************************/

@@ -5,6 +5,7 @@
  *      Author: Administrator
  */
 
+/*******************************************************************************************/
 //PROGRAM
 #include "PWM.h"
 
@@ -18,8 +19,8 @@
 uint16_t PWM_value = PWM_VALUE;
 uint16_t th_factor = 0;
 
+/*******************************************************************************************/
 //milliCounter is in timer.h
-
 void runLedPWM (void) {
 	//Change brightness of left LED
 	while (milliCounter <= PWM_value-th_factor) {}
@@ -31,14 +32,20 @@ void runLedPWM (void) {
 	turnOnLed0();
 }
 
+/*******************************************************************************************/
+
 void decreaseBrightness(void) {
 /* DECREASE BRIGHTNESS */
 	if ( th_factor <= 100 )
 		th_factor += 10;
 }
 
+/*******************************************************************************************/
+
 void increaseBrightness(void) {
 	/* INCREASE BRIGHTNESS */
 	if ( th_factor >= 10 )
 		th_factor -=10;
 }
+
+/*******************************************************************************************/

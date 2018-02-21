@@ -35,7 +35,7 @@ TIMER_Init_TypeDef timer_type_local =
 		.sync = false, 						// Not synchronizing timer operation off of other timers
 };
 
-
+/*******************************************************************************************/
 void delayInMS (uint16_t delay_time) {
 	while (milliCounter <= delay_time) {
 		//WAIT
@@ -44,6 +44,7 @@ void delayInMS (uint16_t delay_time) {
 	milliCounter = 0;
 }
 
+/*******************************************************************************************/
 void setupTimers(enum enumTimer timer, uint32_t max_value) {
 
 	CMU_ClockEnable(cmuClock_GPIO, true);
@@ -69,6 +70,7 @@ void setupTimers(enum enumTimer timer, uint32_t max_value) {
 	}
 
 }
+/*******************************************************************************************/
 
 void startTimer(enum enumTimer timer) {
 
@@ -86,7 +88,7 @@ void startTimer(enum enumTimer timer) {
 			break;
 	}
 }
-
+/*******************************************************************************************/
 
 void setTimerType (enum enumPrescale prescale, enum enumFrequency frequency) {
 
@@ -118,7 +120,7 @@ void setTimerType (enum enumPrescale prescale, enum enumFrequency frequency) {
 			break;
 	}
 }
-
+/*******************************************************************************************/
 void INTR_EN_timer(enum enumTimer timer) {
 
 	switch (timer) {
@@ -147,7 +149,7 @@ void INTR_EN_timer(enum enumTimer timer) {
 			break;
 	}
 }
-
+/*******************************************************************************************/
 
 
 

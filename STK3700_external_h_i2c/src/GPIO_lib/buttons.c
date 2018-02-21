@@ -4,10 +4,20 @@
  *  Created on: Feb 13, 2018
  *      Author: Administrator
  */
+
+/*******************************************************************************************/
+
+//EXTERNAL
 #include <stdbool.h>
+
+//EM_LIB
 #include "em_gpio.h"
-#include "buttons.h"
 #include "em_cmu.h"
+
+//HEADER
+#include "buttons.h"
+
+/*******************************************************************************************/
 
 void GPIO_EN_buttons(void) {
 
@@ -17,6 +27,8 @@ void GPIO_EN_buttons(void) {
 	GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
 	GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
 }
+
+/*******************************************************************************************/
 
 void GPIO_EN_Intr(void) {
 	/* Set falling edge interrupt for both ports */
@@ -33,7 +45,7 @@ void GPIO_EN_Intr(void) {
 
 /*******************************************************************************************/
 
-//PB0 (PB9)
+//PB0 (PB9 in interrupt)
 void GPIO_ODD_IRQHandler(void){
 	GPIO_IntClear(1<<9);
 	//Write button function here
@@ -41,11 +53,10 @@ void GPIO_ODD_IRQHandler(void){
 
 /*******************************************************************************************/
 
-//PB1 (PB10)
+//PB1 (PB10 in interrupt)
 void GPIO_EVEN_IRQHandler(void) {
 	GPIO_IntClear(1<<10);
 	//Write button function here
 }
-
 
 /*******************************************************************************************/

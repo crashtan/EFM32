@@ -9,6 +9,8 @@
 #include "led.h"
 #include "em_cmu.h"
 
+/*******************************************************************************************/
+
 void setupLED(void) {
 
 CMU_ClockEnable(cmuClock_GPIO, true);
@@ -18,6 +20,8 @@ GPIO_PinModeSet(gpioPortE, 3, gpioModePushPull, 0);	//Set LED1 as digital output
 
 }
 
+/*******************************************************************************************/
+
 void turnOnLed0(void){
 	GPIO_PinOutSet(gpioPortE, 2);
 }
@@ -25,6 +29,7 @@ void turnOnLed0(void){
 void turnOnLed1(void){
 	GPIO_PinOutSet(gpioPortE, 3);
 }
+/*******************************************************************************************/
 
 void turnOffLed0(void){
 	GPIO_PinOutClear(gpioPortE, 2);
@@ -33,6 +38,7 @@ void turnOffLed0(void){
 void turnOffLed1(void){
 	GPIO_PinOutClear(gpioPortE, 3);
 }
+/*******************************************************************************************/
 
 void toggleLed0(void){
 	GPIO_PinOutToggle(gpioPortE, 2);
@@ -41,6 +47,7 @@ void toggleLed0(void){
 void toggleLed1(void){
 	GPIO_PinOutToggle(gpioPortE, 3);
 }
+/*******************************************************************************************/
 
 void turnOffLeds(void){
 	/* Turn on both LEDS */
@@ -54,9 +61,11 @@ void turnOnLeds(void){
 	GPIO_PinOutSet(gpioPortE, 2);
 }
 
+/*******************************************************************************************/
+
 void toggleLeds(void){
 	/* Turn on both LEDS */
 	GPIO_PinOutSet(gpioPortE, 3);
 	GPIO_PinOutSet(gpioPortE, 2);
 }
-
+/*******************************************************************************************/

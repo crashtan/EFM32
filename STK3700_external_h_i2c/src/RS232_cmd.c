@@ -4,7 +4,7 @@
  *  Created on: Feb 9, 2018
  *      Author: Administrator
  */
-
+/*******************************************************************************************/
 //PROGRAM
 #include "RS232_cmd.h"
 
@@ -17,8 +17,11 @@
 #include "em_gpio.h"
 #include "em_usart.h"
 
+/*******************************************************************************************/
 
 char receivedString[2];
+
+/*******************************************************************************************/
 
 void sendString (char* string) {
 	uint16_t i;
@@ -34,10 +37,13 @@ void sendString (char* string) {
 	}
 }
 
+/*******************************************************************************************/
+
 char receiveChar (void) {
-	// External Chip will cause RX Interrupt
+	// External Input will cause RX Interrupt
 	char temp_r_char = '\0';
 	if (USART1->STATUS & (1 << 7))
 		temp_r_char = USART1->RXDATA;
 	return temp_r_char;
 }
+/*******************************************************************************************/

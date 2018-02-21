@@ -13,10 +13,10 @@
 #include "GPIO_lib/led.h"
 #include "GPIO_lib/uart.h"
 #include "GPIO_lib/i2c.h"
+#include "GPIO_lib/i2c_hard.h"
 
 //PROGRAM
 #include "RS232_cmd.h"
-#include "i2c_hard.h"
 
 /***************************************************************************//**
  * @brief GLOBAL VARIABLES
@@ -93,34 +93,29 @@ int main(void)
 	 ******************************************************************************/
 
 	//First string on opening program
-	sendString("Hello!");
+	sendString("\n\r Hello!");
 	sendString(" Welcome to RS232 on STK3700.\n\r");
 
 	/* Infinite loop */
 	while (1) {
 
-
 		NVIC_DisableIRQ(USART1_RX_IRQn);
 
-		//read_data(i2c_Buffer, DS1307_ADDRESS, 8);
-
-		unsigned char* test = ("test123");
-
-
-		write_write_data(test, ATMEL_EEPROM_24C04N_ADDRESS, 0x00, 10);
-		write_read_data(test_buffer, ATMEL_EEPROM_24C04N_ADDRESS, 0x00, 64);
+		static char count = 'A';
+		char* test_input = &count;
+		I2C_hard_test(ATMEL_EEPROM_24C04N_ADDRESS, test_input, test_buffer);
+		count++;
 
 		NVIC_ClearPendingIRQ(USART1_RX_IRQn);
 		NVIC_EnableIRQ(USART1_RX_IRQn);
 
-
 		sendString( (char*)test_buffer );
 
-		//I2C_test();
 
 		/*
-		//i2c_writeData(0x00);
-		//i2c_readData(0x00);
+		// I2C_SOFT_TEST
+		i2c_writeData(0x00);
+		i2c_readData(0x00);
 		for (uint8_t i=0; i<8; i++) {
 			i2c_string[i] = (char)i2c_rxBuffer[i];
 		}
@@ -128,21 +123,10 @@ int main(void)
 		*/
 
 		/*
+		// DS1307 RTC TEST
 		SegmentLCD_Write("Clock");
 		SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
 		SegmentLCD_Number(clock_hours*100 + clock_minutes);
 		*/
-
-		//delayInMS(1);
-		//GPIO_PinOutClear(gpioPortF, 9);
-		//delayInMS(1000);
-		//GPIO_PinOutSet(gpioPortF, 9);
-		//delayInMS(1000);
-		//turnOnLed1();
-		//turnOnLeds();
-		//delayInMS(1);
-		//turnOffLed1();
-		//turnOffLeds();
-
   }
 }

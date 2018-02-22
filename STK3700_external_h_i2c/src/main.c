@@ -13,9 +13,7 @@
 #include "GPIO_lib/led.h"
 #include "GPIO_lib/uart.h"
 #include "GPIO_lib/i2c.h"
-#include "GPIO_lib/i2c_hard.h"
-
-//PROGRAM
+#include "GPIO_lib/i2c_soft.h"
 #include "RS232_cmd.h"
 
 /***************************************************************************//**
@@ -27,7 +25,7 @@
 uint8_t clock_hours;
 uint8_t clock_minutes;
 
-uint8_t test_buffer[64];
+uint8_t test_buffer[8];
 
 
 /***************************************************************************//**
@@ -78,14 +76,15 @@ int main(void)
 	SegmentLCD_Init(false);
 
 	// Start LEDS
-	setupLED();
+	//setupLED();
 
-	setup_hard_i2c();
+	// I2C setup on PF8 and PF9 GPIO
+	setup_soft_i2c();
 
-	//Setup I2C soft
+	// Setup I2C hardware
 	setup_I2C();
 
-	//delay to stabilize i2c peripheral
+	// Delay to stabilize i2c peripheral
 	delayInMS(50000);
 
 	/***************************************************************************//**
@@ -103,7 +102,20 @@ int main(void)
 
 		static char count = 'A';
 		char* test_input = &count;
-		I2C_hard_test(ATMEL_EEPROM_24C04N_ADDRESS, test_input, test_buffer);
+
+		/*
+		// ===== I2C_HARD_TEST =====
+		i2c_writeData(ATMEL_EEPROM_24C04N_ADDRESS, 0x00, test_input, 8);
+		delayInMS(5000);
+		i2c_readData(ATMEL_EEPROM_24C04N_ADDRESS, 0x00, test_buffer, 8);
+		*/
+
+		/* ===== I2C SOFT TEST =====
+		//I2C_hard_test(ATMEL_EEPROM_24C04N_ADDRESS, test_input, test_buffer);
+		//write_write_data(test_input, ATMEL_EEPROM_24C04N_ADDRESS, 0x00, 10);
+		//read_data(test_buffer, ATMEL_EEPROM_24C04N_ADDRESS, 64);
+		*/
+
 		count++;
 
 		NVIC_ClearPendingIRQ(USART1_RX_IRQn);
@@ -112,15 +124,8 @@ int main(void)
 		sendString( (char*)test_buffer );
 
 
-		/*
-		// I2C_SOFT_TEST
-		i2c_writeData(0x00);
-		i2c_readData(0x00);
-		for (uint8_t i=0; i<8; i++) {
-			i2c_string[i] = (char)i2c_rxBuffer[i];
-		}
-		sendString(i2c_string);
-		*/
+
+
 
 		/*
 		// DS1307 RTC TEST

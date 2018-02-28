@@ -9,9 +9,11 @@
 #define SRC_RS232_CMD_H_
 
 
-extern char receivedString[2];
+#define INPUT_SIZE 20
+extern char currentString[];
 
+void waitForInput(void);
+void receiveChar (void);
 void sendString (char* string);
-char receiveChar (void);
 
 #endif /* SRC_RS232_CMD_H_ */

@@ -22,7 +22,10 @@
 /***************************************************************************//**
  * @brief GLOBAL VARIABLES
  ******************************************************************************/
-
+typedef enum STATE {
+	SET_MODE,
+	RUN_MODE,
+} state;
 
 /***************************************************************************//**
  * @brief Set up Clock Management Unit
@@ -47,8 +50,7 @@ void cmuSetup(void)
  * @brief Initialize CHIP and PROGRAM
  ******************************************************************************/
 
-int main(void)
-{
+int main(void) {
 	// Chip errata
 	CHIP_Init();
 
@@ -86,31 +88,44 @@ int main(void)
 	 ******************************************************************************/
 
 	//First string on opening program
-	sendString("\n\r Hello!");
+	sendString("\n\r\n\rHello!");
 	sendString(" Welcome to RS232 on STK3700.\n\r");
 
-	update_DS1307_from_EEPROM();
-
-	update_DS1307();
-	enable_DS1307_clock(true);
-
-	DS1307_set_day(MONDAY);
-	DS1307_set_date("26");
-	DS1307_set_month("02");
-	DS1307_set_year("18");
-
-	DS1307_set_second("15");
-	DS1307_set_minute("51");
-	DS1307_set_hour("03", PM, _12_HOUR);
+	// DS1307 Initialization
+	sendString(" Welcome to RTC Clock on I2C\n\r");
+	state prog_state = RUN_MODE;
+	//update_DS1307_from_EEPROM();
 
 	/* Infinite loop */
 	while (1) {
-		// GET DATA FROM DS1307
-		update_DS1307();
 
-		// DS1307 RTC DISPLAY
-		SegmentLCD_Write("Clock");
-		SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
-		SegmentLCD_Number(clock_hours*100 + clock_minutes);
-  }
+		switch (prog_state) {
+		case RUN_MODE:
+			// GET DATA FROM DS1307
+			update_DS1307();
+
+			// DS1307 RTC DISPLAY
+			SegmentLCD_Write(DS1307_getDate());
+			SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
+			SegmentLCD_Number(DS1307_getHours()*100 + DS1307_getMinutes());
+
+			if (currentString[0] == 's')
+				prog_state = SET_MODE;
+			if (currentString[0] == 'x') {
+				sendString("\n\rExiting Program");
+				exit(0);
+			}
+			break;
+
+		case SET_MODE:
+			sendString("\n\rEntered Clock Set Mode");
+			DS1307_setMode();
+			prog_state = RUN_MODE;
+			break;
+
+		default:
+			break;
+		}
+	}
+	return 0;
 }

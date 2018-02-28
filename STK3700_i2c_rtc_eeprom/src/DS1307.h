@@ -12,6 +12,7 @@
 #define DS1307_ADDRESS 	0x68
 #define DS1307_BUFFER_SIZE 7
 
+
 #define SECONDS_REGISTER	0x00
 #define MINUTES_REGISTER	0x01
 #define HOURS_REGISTER		0x02
@@ -39,19 +40,6 @@
 extern uint8_t read_buffer[DS1307_BUFFER_SIZE];
 extern uint8_t write_buffer[DS1307_BUFFER_SIZE];
 
-extern uint16_t clock_hours;
-extern uint16_t clock_minutes;
-
-typedef enum WEEKDAY {
-	MONDAY 		= 1,
-	TUESDAY 	= 2,
-	WEDNESDAY 	= 3,
-	THURSDAY 	= 4,
-	FRIDAY 		= 5,
-	SATURDAY 	= 6,
-	SUNDAY 		= 7,
-} weekday;
-
 typedef enum DAY_NIGHT {
 	AM,
 	PM,
@@ -62,19 +50,24 @@ typedef enum CLOCK_TYPE {
 	_24_HOUR,
 } clock_type;
 
+void DS1307_setMode(void);
 void write_to_DS1307(void);
 void print_DS1307(void);
 void update_DS1307_from_EEPROM(void);
 void update_DS1307(void);
 
-void DS1307_set_day(weekday day_name);
-void DS1307_set_date(char* string);
-void DS1307_set_month(char* string);
-void DS1307_set_year(char* string);
+char* DS1307_getDate(void);
+uint16_t DS1307_getMinutes(void);
+uint16_t DS1307_getHours(void);
 
-void DS1307_set_hour(char* string, day_night am_pm, clock_type _24_hr);
-void DS1307_set_minute(char* string);
-void DS1307_set_second(char* string);
+bool DS1307_set_day(char* string);
+bool DS1307_set_date(char* string);
+bool DS1307_set_month(char* string);
+bool DS1307_set_year(char* string);
+
+bool DS1307_set_hour(char* string, day_night am_pm, clock_type _24_hr);
+bool DS1307_set_minute(char* string);
+bool DS1307_set_second(char* string);
 
 void enable_DS1307_clock(bool enable);
 

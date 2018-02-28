@@ -9,7 +9,6 @@
 #include "em_usart.h"
 #include "uart.h"
 #include "../RS232_cmd.h"
-#include "segmentlcd.h"
 
 /*******************************************************************************************/
 
@@ -61,14 +60,8 @@ void GPIO_EN_UART(void) {
 void USART1_RX_IRQHandler(void) {
 	GPIO_IntClear(1<<11);
 
-	char temp = '\0';
-	temp = receiveChar();
-
 	//RECEIVE DATA
-	if (USART1->RXDATA) {
-		receivedString[0] = temp;
-		//SegmentLCD_Write(receivedString);
-	}
+	receiveChar();
 }
 
 /*******************************************************************************************/

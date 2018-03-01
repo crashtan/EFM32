@@ -93,13 +93,14 @@ int main(void) {
 
 	// DS1307 Initialization
 	sendString(" Welcome to RTC Clock on I2C\n\r");
-	state prog_state = RUN_MODE;
+	state prog_state = SET_MODE;
 	//update_DS1307_from_EEPROM();
 
 	/* Infinite loop */
 	while (1) {
 
 		switch (prog_state) {
+
 		case RUN_MODE:
 			// GET DATA FROM DS1307
 			update_DS1307();
@@ -111,7 +112,7 @@ int main(void) {
 
 			if (currentString[0] == 's')
 				prog_state = SET_MODE;
-			if (currentString[0] == 'x') {
+			if ( strcmp(currentString, "x") == 0) {
 				sendString("\n\rExiting Program");
 				exit(0);
 			}

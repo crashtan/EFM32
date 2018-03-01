@@ -27,6 +27,19 @@ char date_string[8];
 
 /*******************************************************************************************/
 
+inline static bool check_leap_year(void) {
+	bool leap_year = false;
+	uint8_t temp1 = YEARS_HIGH(write_buffer[YEAR_REGISTER]);
+	uint8_t temp0 = YEARS_LOW(write_buffer[YEAR_REGISTER]);
+
+	if ((((temp1*10)+temp0)%4)==0) {
+		leap_year = true;
+	}
+	return leap_year;
+}
+
+/*******************************************************************************************/
+
 inline static char to_uint16_t (char character) {
 	return (uint16_t)(character-0x30);
 }
@@ -108,64 +121,84 @@ void DS1307_setMode(void) {
 	enable_DS1307_clock(true);
 	update_DS1307();
 
-	DAY:
-	sendString("\r\nMonday 		= 1\r\nTuesday 	= 2\r\nWednesday 	= 3\r\nThursday 	= 4\r\nFriday 		= 5\r\nSaturday 	= 6\r\nSunday 		= 7\r\nEnter 1 digit day value and press Enter: ");
+	YEAR:
+	sendString("\r\nEnter 2 digit year value(00-99) and press Enter: ");
 	waitForInput();
-	if (!DS1307_set_day(currentString) )
-		goto DAY;
-
-	DATE:
-	sendString("\r\nEnter 2 digit date value(01-31) and press Enter: ");
-	waitForInput();
-	if (!DS1307_set_date(currentString) )
-		goto DATE;
+	if ( strcmp(currentString, "exit") == 0)
+		return;
+	if (!DS1307_set_year(currentString) )
+		goto YEAR;
 
 	MONTH:
 	sendString("\r\nEnter 2 digit month value(01-12) and press Enter: ");
 	waitForInput();
+	if ( strcmp(currentString, "exit") == 0)
+		return;
 	if (!DS1307_set_month(currentString) )
 		goto MONTH;
 
-	YEAR:
-	sendString("\r\nEnter 2 digit year value(00-99) and press Enter: ");
+	DATE:
+	sendString("\r\nEnter 2 digit date value(01-31) and press Enter: ");
 	waitForInput();
-	if (!DS1307_set_year(currentString) )
-		goto YEAR;
+	if ( strcmp(currentString, "exit") == 0)
+		return;
+	if (!DS1307_set_date(currentString) )
+		goto DATE;
+
+	DAY:
+	sendString("\r\nMonday 		= 1\r\nTuesday 	= 2\r\nWednesday 	= 3\r\nThursday 	= 4\r\nFriday 		= 5\r\nSaturday 	= 6\r\nSunday 		= 7\r\nEnter 1 digit day value and press Enter: ");
+	waitForInput();
+	if ( strcmp(currentString, "exit") == 0)
+		return;
+	if (!DS1307_set_day(currentString) )
+		goto DAY;
 
 	HOUR:
 	sendString("\r\n12 Hour = 1\r\n24 Hour = 2\r\nChoose Clock type, 12 or 24hr and press Enter: ");
 	waitForInput();
+	if ( strcmp(currentString, "exit") == 0)
+		return;
 	//12 HOUR CHOSEN
 	if ((currentString[0] =='1') && (strlen(currentString)==1)){
+		AMPM:
 		sendString("\r\nAM = 1\r\nPM = 2\r\nChoose day time, AM or PM and press Enter: ");
 		waitForInput();
+		if ( strcmp(currentString, "exit") == 0)
+			return;
 		if ((currentString[0] =='1') && (strlen(currentString)==1)) {
 			//AM CHOSEN
 			sendString("\r\nEnter 2 digit hour value(00-12) and press Enter: ");
 			waitForInput();
+			if ( strcmp(currentString, "exit") == 0)
+				return;
 			if (!DS1307_set_hour(currentString, AM, _12_HOUR) ) {
-				goto HOUR;
+				goto AMPM;
 			}
 		} else {
 			if ((currentString[0] =='2') && (strlen(currentString)==1)) {
 				//PM CHOSEN
 				sendString("\r\nEnter 2 digit hour value(00-12) and press Enter: ");
 				waitForInput();
+				if ( strcmp(currentString, "exit") == 0)
+					return;
 				if (!DS1307_set_hour(currentString, PM, _12_HOUR) )
-					goto HOUR;
+					goto AMPM;
 			} else {
 				// OTHER THAN 1 OR 2
 				sendString("Illegal Choice Entered, Re-enter Hour Data!");
-				goto HOUR;
+				goto AMPM;
 			}
 		}
 	} else {
 		//24 HOUR CHOSEN
+		_24HOUR:
 		if ((currentString[0] =='2') && (strlen(currentString)==1)){
 			sendString("\r\nEnter 2 digit hour value(00-23) and press Enter: ");
 			waitForInput();
+			if ( strcmp(currentString, "exit") == 0)
+				return;
 			if (!DS1307_set_hour(currentString, AM, _24_HOUR) )
-				goto HOUR;
+				goto _24HOUR;
 		} else {
 			// OTHER THAN 1 OR 2
 			sendString("Illegal Choice Entered, Re-enter Hour Data!");
@@ -176,12 +209,16 @@ void DS1307_setMode(void) {
 	MINUTES:
 	sendString("\r\nEnter 2 digit minutes value(00-59) and press Enter: ");
 	waitForInput();
+	if ( strcmp(currentString, "exit") == 0)
+		return;
 	if (!DS1307_set_minute(currentString) )
 		goto MINUTES;
 
 	SECONDS:
 	sendString("\r\nEnter 2 digit seconds value(00-59) and press Enter: ");
 	waitForInput();
+	if ( strcmp(currentString, "exit") == 0)
+		return;
 	if (!DS1307_set_second(currentString) )
 		goto SECONDS;
 
@@ -214,6 +251,8 @@ void update_DS1307(void) {
 	//Disable Interrupts
 	NVIC_DisableIRQ(USART1_RX_IRQn);
 
+	READ:
+
 	// READ FROM DS1307, HARDWARE I2C
 	i2c_readData(DS1307_ADDRESS, SECONDS_REGISTER, read_buffer, DS1307_BUFFER_SIZE);
 
@@ -225,6 +264,25 @@ void update_DS1307(void) {
 		if (write_buffer[i] != read_buffer[i]) {
 			write_buffer[i] = read_buffer[i];
 			flag = true;
+		}
+	}
+
+	//Feb 28-29 Check, and leap year
+	if ((toChar(MONTHS_HIGH(write_buffer[MONTH_REGISTER]))=='0') && (toChar(MONTHS_HIGH(write_buffer[MONTH_REGISTER]))=='2')){
+		if ((toChar(DATE_HIGH(write_buffer[DATE_REGISTER]))=='2') && (toChar(DATE_LOW(write_buffer[DATE_REGISTER]))=='9')){
+			if (check_leap_year()) {
+				//Do Nothing
+			} else {
+				DS1307_set_date("01");
+				DS1307_set_month("03");
+				goto READ;
+			}
+		} else {
+			if ((toChar(MONTHS_HIGH(write_buffer[MONTH_REGISTER]))>'2') && (toChar(MONTHS_HIGH(write_buffer[MONTH_REGISTER]))>'8')){
+			DS1307_set_date("01");
+			DS1307_set_month("03");
+			goto READ;
+			}
 		}
 	}
 
@@ -312,6 +370,16 @@ bool DS1307_set_date(char* string){
 				sendString("\n\rEntry out of range.");
 				return false;
 			}
+			bool leap_year = check_leap_year();
+			if ((string[0] =='2') && (string[1] >'8') && (leap_year==false) )  {
+				sendString("\n\rEntry out of range.");
+				return false;
+			}
+			if ((string[0] =='3') && (string[1] >='0') && (leap_year==true) )  {
+				sendString("\n\rEntry out of range, current year not a leap year");
+				return false;
+			}
+
 			//SET THE MINUTE
 			uint8_t upper = (((uint8_t)(to_uint8_t(string[0])))<<4);
 			uint8_t lower =	((uint8_t)(to_uint8_t(string[1])));

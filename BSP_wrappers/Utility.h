@@ -46,6 +46,6 @@ typedef int32_t fx_t;
 //*************
 // Utilities
 //*************
-void setBit(void* number, uint8_t bit_shift, uint8_t bit_value);
+void setBit(uint8_t* number, uint8_t bit_shift, uint8_t bit_value);
 
 #endif /* UTILITY_H_ */

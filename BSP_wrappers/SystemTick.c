@@ -12,7 +12,7 @@ volatile uint32_t msTicks; /* counts 1ms timeTicks */
  * @brief SysTick
  * Setup
  *****************************************************************************/
-void SetupSystemTick(void) {
+void SystemTick_Setup(void) {
 	// Setup SysTick Timer for 1 msec interrupts
 	if (SysTick_Config(CMU_ClockFreqGet(cmuClock_CORE) / 1000))
 		while (1) ;
@@ -22,7 +22,6 @@ void SetupSystemTick(void) {
  * @brief SysTick_Handler
  * Interrupt Service Routine for system tick counter
  *****************************************************************************/
-
 void SysTick_Handler(void) {
 	msTicks++;       /* increment counter necessary in Delay()*/
 }
@@ -33,8 +32,14 @@ void SysTick_Handler(void) {
  *****************************************************************************/
 void DelayInMS(uint32_t dlyTicks)
 {
-    uint32_t curTicks;
-
-    curTicks = msTicks;
+    uint32_t curTicks = msTicks;
     while ((msTicks - curTicks) < dlyTicks) ;
+}
+
+/**************************************************************************//**
+ * @brief SoftTimer with 1ms resolution
+ * @param
+ *****************************************************************************/
+uint32_t GetMilliseconds(void) {
+	return msTicks;
 }

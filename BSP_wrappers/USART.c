@@ -7,9 +7,10 @@
 
 #include "USART.h"
 
-uint8_t rx_data = 0;
+uint8_t rx_data[rx_size] = {0};
+uint32_t rx_count = 0;
 
-void SetupUSART(USART_TypeDef* usart_number){
+void Setup_USART(USART_TypeDef* usart_number){
 
 	//============
 	// PARAMETERS
@@ -35,6 +36,7 @@ void SetupUSART(USART_TypeDef* usart_number){
 	// SETUP
 	//=======
 	// Enable clock for USART module
+	CMU_ClockEnable(cmuClock_GPIO, true);
 	CMU_ClockEnable(cmuClock_USART, true);
 
 	USART_InitAsync_TypeDef usartInit = USART_INITASYNC_DEFAULT;
@@ -73,18 +75,20 @@ void SetupUSART(USART_TypeDef* usart_number){
 }
 //======================================================================================
 
-uint8_t ReadUSART_8 (USART_TypeDef* usart_number) {
-	volatile uint8_t data = 0;
-	if (usart_number->RXDATA)
-			data = usart_number->RXDATA;
-	return data;
+void ReadUSART_8 (USART_TypeDef* usart_number) {
+	rx_count = 0;
+	if (usart_number->RXDATA) {
+		if (rx_count == rx_size){
+			rx_count = 0;
+		}
+		rx_data[rx_count++] = usart_number->RXDATA;
+	}
 }
 
-uint16_t ReadUSART_16 (USART_TypeDef* usart_number) {
-	volatile uint8_t data = 0;
-	if (usart_number->RXDOUBLE)
-		data = usart_number->RXDOUBLE;
-	return data;
+void ReadUSART_16 (USART_TypeDef* usart_number) {
+	if (usart_number->RXDOUBLE){
+		//TODO:
+	}
 }
 
 void WriteUSART_8(USART_TypeDef* usart_number, uint8_t data) {
@@ -98,10 +102,18 @@ void WriteUSART_16(USART_TypeDef* usart_number, uint16_t data) {
 }
 
 void USART1_RX_IRQHandler (void) {
-	GPIO_IntClear(1<<11);
+	Flush_RX_Buffer();
 
-	rx_data = ReadUSART_8(USART1);
-	//ReadUSART_16(USART1);
+	while(USART1->STATUS & (1 << 7))
+		ReadUSART_8(USART1);
+
+	USART_IntClear(USART1, USART_IF_RXDATAV);
+}
+
+void Flush_RX_Buffer (void) {
+	for (uint32_t i=0; i < rx_size; i++) {
+		rx_data[i] = 0;
+	}
 }
 
 //void USART1_TX_IRQHandler (void) {

@@ -6,8 +6,9 @@
  */
 #include "I2C.h"
 
-void SetupI2C1 (void){
+void I2C1_Setup (void){
 	/* Enabling clock to the I2C, GPIO */
+	CMU_ClockEnable(cmuClock_GPIO, true);
 	CMU_ClockEnable(cmuClock_I2C1, true);
 
 	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
@@ -20,13 +21,13 @@ void SetupI2C1 (void){
 	I2C1->ROUTE = I2C_ROUTE_SDAPEN |
 				I2C_ROUTE_SCLPEN | I2C_ROUTE_LOCATION_LOC0;
 
-	i2cInit.freq = I2C_DEFAULT_FREQ; //100kHz
+	i2cInit.freq = I2C_DEFAULT_FREQ;
 
 	/* Initializing the I2C */
 	I2C_Init(I2C1, &i2cInit);
 }
 
-void PerformI2CRead(uint16_t SlaveAddress, uint8_t WriteRegisterAddress, uint8_t *ReadBuffer, uint16_t Length) {
+void PerformI2C_READ(uint16_t SlaveAddress, uint8_t WriteRegisterAddress, uint8_t *ReadBuffer, uint16_t Length) {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
 
@@ -48,7 +49,7 @@ void PerformI2CRead(uint16_t SlaveAddress, uint8_t WriteRegisterAddress, uint8_t
 	while (I2C_Transfer(I2C1) == i2cTransferInProgress);
 }
 
-void PerformI2CWrite(uint16_t SlaveAddress, uint8_t WriteRegisterAddress, uint8_t *WriteBuffer, uint16_t Length){
+void PerformI2C_WRITE(uint16_t SlaveAddress, uint8_t WriteRegisterAddress, uint8_t *WriteBuffer, uint16_t Length){
 	I2C_TransferSeq_TypeDef i2cTransfer;
 
 	/* Initializing I2C transfer */

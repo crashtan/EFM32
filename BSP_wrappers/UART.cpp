@@ -76,7 +76,7 @@ void Setup_UART(USART_TypeDef* UART_number){
 //======================================================================================
 
 void ReadUART_8 (USART_TypeDef* UART_number) {
-	rx_count = 0;
+	uart_rx_count = 0;
 	if (UART_number->RXDATA) {
 		if (uart_rx_count == uart_rx_size){
 			uart_rx_count = 0;
@@ -102,7 +102,7 @@ void WriteUART_16(USART_TypeDef* UART_number, uint16_t data) {
 }
 
 extern "C" void UART1_RX_IRQHandler (void) {
-	Flush_RX_Buffer();
+	uart_Flush_RX_Buffer();
 
 	while(UART1->STATUS & (1 << 7)) {
 		ReadUART_8(UART1);

@@ -14,11 +14,9 @@
 #include "em_cmu.h"
 #include "em_gpio.h"
 
-#include "../Camera/Camera.h"
-
 #define uart_rx_size 128
 extern uint32_t uart_rx_count;
-extern uint8_t uart_rx_data[rx_size];
+extern uint8_t uart_rx_data[uart_rx_size];
 
 void Setup_UART (USART_TypeDef* UART_number);
 void ReadUART_8 (USART_TypeDef* UART_number);

@@ -1,0 +1,64 @@
+/**************************************************************************//**
+ * @file
+ * @brief Empty Project
+ * @author Energy Micro AS
+ * @version 3.20.2
+ ******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
+ *
+ * This file is licensed under the Silicon Labs Software License Agreement. See
+ * "http://developer.silabs.com/legal/version/v11/Silicon_Labs_Software_License_Agreement.txt"
+ * for details. Before using this software for any purpose, you must agree to the
+ * terms of that agreement.
+ *
+ ******************************************************************************/
+#include "em_cmu.h"
+#include "em_device.h"
+#include "em_chip.h"
+
+#include "Logic/Logic.h"
+
+#include <LogicModules/SoftTimer/SoftTimer.h>
+
+#include <Kit/Kit.h>
+
+/**************************************************************************//**
+ * @brief  Main function
+ *****************************************************************************/
+void foo(void)
+{
+	/* Chip errata */
+	CHIP_Init();
+
+	CMU_HFRCOBandSet(cmuHFRCOBand_28MHz);
+
+	// Setup SysTick Timer for 1 msec interrupts
+	if (SysTick_Config(CMU_ClockFreqGet(cmuClock_CORE) / 1000)) while (1) ;
+	Kit::Instance()->GetMCU()->GetCore()->Delay(100);
+
+	Kit::Instance()->Init();
+
+	Logic::Instance()->Init(1/* TDMConfigs::TDM_ID*/);
+
+	//Logger::Instance()->Log("EFM BOOTED STARTUP");
+
+	bool downloadInProgress = false;
+
+	while(true)
+	{
+		if(downloadInProgress)
+		{
+			// Test Logic
+			SoftTimer::Instance()->Process();
+			Kit::Instance()->GetXBee()->ProcessIncoming();
+		}
+		else
+		{
+			Logic::Instance()->Process();
+			Kit::Instance()->Process();
+			Kit::Instance()->GetMCU()->GetCore()->Delay(10);
+		}
+	}
+}

@@ -1,0 +1,3 @@
+C:\SiliconLabs\SimplicityStudio\v3\developer\msys\1.0\bin	//for make
+C:\SiliconLabs\SimplicityStudio\v3\bgtool\gcc\bin		//for arm compiler
+C:\SiliconLabs\SimplicityStudio\v3\developer\toolchains\gnu_arm\4.8_2013q4\arm-none-eabi\bin

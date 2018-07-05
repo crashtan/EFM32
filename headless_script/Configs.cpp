@@ -1,0 +1,79 @@
+/*
+ * Configs.cpp
+ *
+ *  Created on: Mar 7, 2017
+ *      Author: madeel
+ */
+
+#include "Configs.h"
+#include <DataUplaod/BinData/BinData.h>
+#include <DataUplaod/BinData/BinDataDefs.h>
+#include <DataUplaod/Utils/Utils.h>
+#include <DataUplaod/Flash/FlashDefs.h>
+#include <cstring>
+
+Configs::Configs()
+{
+    stConfig.ulHearBeatInterval = 10000;		// 10 seconds
+    stConfig.udDevice_ID = 0x0x0013A200415CE4Aa ;
+    stConfig.udDefaultTestTDM_ID = 0x1234;
+    stConfig.udMessageTimeout = 3000;			// 3 second
+    stConfig.unTimePeriod = 6;
+    stConfig.unTimeSlot = 0;
+    stConfig.unDefaultTimeSlotWindow = 0;
+    stConfig.unDefaultTrackID = 0;
+    stConfig.unMessageRetries = 1;
+    stConfig.unBackendPersonality = 0;   		//Unknown, TODO: this needs to be decided where this data shall be fetched from
+    stConfig.unBeaconsRetries = 4;
+    stConfig.unTrainAlertWindowInSec = 30;
+    stConfig.bSimulatePPS = false;
+    stConfig.bDemonstration	= true;				// RSSI based logic alternate to Track Profile
+    stConfig.unPeerRadius = 3;
+    stConfig.unSynchWindow = 30;
+    stConfig.unDevicePersonality = 1;			// EIC = 1, WLW = 2, WW = 3, TDM = 4, TAM = 5
+    stConfig.unMaxAllowableSpeedMPH = 20;
+    stConfig.unFaultRefreshTime = 10; 			//minutes
+
+    stConfig.bPPSFallbackStrategy = true;		// Simulate PPS based on TDM Beacons if GPS is not synced (applicable if bSimulate is false)
+
+    // New temporary configs for Train alerts
+	unNoOfConfigDataBytes = 20U;
+	udGroupID = 0xAAAA;
+}
+
+
+void Configs::Init()
+{
+    uint8_t  aunConfigData[128] = {0}; // temporary data buffer
+    uint16_t udCalculatedCRC = 0U;
+    uint16_t udStoredCRC = 0U;
+
+    uint8_t unDataSize = sizeof(EIC_CONFIG_STRUCT);
+    std::memcpy((void *) &udStoredCRC, (void *) (CONFIG_DATA_START_ADDRESS + unDataSize), sizeof(udStoredCRC));  // read stored CRC
+    if(udStoredCRC != 0xFFFFU)  // valid data is available?
+    {
+        // read configuration data from internal flash
+        //
+        std::memcpy((void *) &aunConfigData, (void *) CONFIG_DATA_START_ADDRESS, unDataSize);  // read config parameters
+
+        // calculate CRC
+        //
+        udCalculatedCRC = Utils::Instance()->udCRC_BlockCRC(unDataSize, aunConfigData, udCalculatedCRC);
+        if(udCalculatedCRC == udStoredCRC)
+        {
+            std::memcpy((void *) &stConfig, (void *) aunConfigData, unDataSize);  // Update configuration parameters
+        }
+        else  // configuration data validation failed
+        {
+            // no need to initialize configuration variables
+            // Todo: Action required
+        }
+
+        //stConfig.unBackendPersonality = 3;
+    }
+    else  // no configuration data available
+    {
+        // Todo: Action required
+    }
+}
+
